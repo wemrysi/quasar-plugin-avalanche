@@ -18,12 +18,13 @@ package quasar.plugin.avalanche.datasource
 
 import quasar.plugin.avalanche._
 
-import scala.{Stream => _, _}
+import scala.{Stream => _, _}, Predef.classOf
 import scala.annotation.switch
 
 import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.sql.ResultSet
+import java.time._
 import java.util.UUID
 
 import cats.effect.Resource
@@ -116,15 +117,19 @@ private[datasource] object AvalancheLoader {
         unlessNull(rs.getBoolean(col))(RValue.rBoolean(_))
 
       case DATE =>
-        unlessNull(rs.getDate(col))(d => RValue.rLocalDate(d.toLocalDate))
+        unlessNull(rs.getObject(col, classOf[LocalDate]))(RValue.rLocalDate(_))
 
-      // TODO: Need to check vendor type here
       case TIME =>
-        unlessNull(rs.getTime(col))(t => RValue.rLocalTime(t.toLocalTime))
+        if (vendorType == Types.TimeWithTimeZone || vendorType == Types.TimeWithLocalTimeZone)
+          unlessNull(rs.getObject(col, classOf[OffsetTime]))(RValue.rOffsetTime(_))
+        else
+          unlessNull(rs.getObject(col, classOf[LocalTime]))(RValue.rLocalTime(_))
 
-      // TODO: Need to check vendor type here
       case TIMESTAMP =>
-        unlessNull(rs.getTimestamp(col))(ts => RValue.rLocalDateTime(ts.toLocalDateTime))
+        if (vendorType == Types.TimestampWithTimeZone || vendorType == Types.TimestampWithLocalTimeZone)
+          unlessNull(rs.getObject(col, classOf[OffsetDateTime]))(RValue.rOffsetDateTime(_))
+        else
+          unlessNull(rs.getObject(col, classOf[LocalDateTime]))(RValue.rLocalDateTime(_))
 
       case otherSql => vendorType match {
         case Types.IPv4 | Types.IPv6 =>

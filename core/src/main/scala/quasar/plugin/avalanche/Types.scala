@@ -111,5 +111,9 @@ object Types {
       IPv6 -> ColumnType.String,
       UUID -> ColumnType.String,
       IntervalDayToSecond -> ColumnType.Interval,
-      IntervalYearToMonth -> ColumnType.Interval)
+      IntervalYearToMonth -> ColumnType.Interval,
+      TimeWithTimeZone -> ColumnType.OffsetTime,
+      TimeWithLocalTimeZone -> ColumnType.OffsetTime,
+      TimestampWithTimeZone -> ColumnType.OffsetDateTime,
+      TimestampWithLocalTimeZone -> ColumnType.OffsetDateTime)
 }
