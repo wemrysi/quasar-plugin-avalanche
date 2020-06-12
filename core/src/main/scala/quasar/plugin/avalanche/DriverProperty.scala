@@ -22,12 +22,22 @@ import scala.util.matching.Regex
 import cats.{Eq, Show}
 import cats.implicits._
 
+import monocle.Lens
+
 final case class DriverProperty(name: String, value: String) {
   def forUrl: String = s"$name=$value"
 }
 
 object DriverProperty {
   val AttrValue: Regex = "^([^=]+)=(.*)$".r
+
+  object Optics {
+    val name: Lens[DriverProperty, String] =
+      Lens[DriverProperty, String](_.name)(n => _.copy(name = n))
+
+    val value: Lens[DriverProperty, String] =
+      Lens[DriverProperty, String](_.value)(v => _.copy(value = v))
+  }
 
   implicit val driverPropertyEq: Eq[DriverProperty] =
     Eq.by(dp => (dp.name, dp.value))

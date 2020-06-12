@@ -28,7 +28,11 @@ import cats.{Eq, Show}
 import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
 
+import monocle.{Lens, Traversal}
+
 import quasar.plugin.jdbc.Redacted
+
+import shims.traverseToScalaz
 
 /** Avalanche connection configuration.
   *
@@ -98,6 +102,26 @@ object ConnectionConfig {
       "encryption", "ENCRYPT",
       "char_encode", "ENCODE"
     ) ++ SensitiveProps
+
+  object Optics {
+    val serverName: Lens[ConnectionConfig, String] =
+      Lens[ConnectionConfig, String](_.serverName)(n => _.copy(serverName = n))
+
+    val databaseName: Lens[ConnectionConfig, String] =
+      Lens[ConnectionConfig, String](_.databaseName)(n => _.copy(databaseName = n))
+
+    val properties: Lens[ConnectionConfig, List[DriverProperty]] =
+      Lens[ConnectionConfig, List[DriverProperty]](_.properties)(ps => _.copy(properties = ps))
+
+    val driverProperties: Traversal[ConnectionConfig, DriverProperty] =
+      properties.composeTraversal(Traversal.fromTraverse[List, DriverProperty])
+
+    val maxConcurrency: Lens[ConnectionConfig, Option[Int]] =
+      Lens[ConnectionConfig, Option[Int]](_.maxConcurrency)(n => _.copy(maxConcurrency = n))
+
+    val maxLifetime: Lens[ConnectionConfig, Option[FiniteDuration]] =
+      Lens[ConnectionConfig, Option[FiniteDuration]](_.maxLifetime)(d => _.copy(maxLifetime = d))
+  }
 
   implicit val connectionConfigCodecJson: CodecJson[ConnectionConfig] =
     CodecJson(
