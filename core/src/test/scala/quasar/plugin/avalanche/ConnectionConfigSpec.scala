@@ -28,6 +28,7 @@ import org.specs2.mutable.Specification
 import quasar.plugin.jdbc.Redacted
 
 object ConnectionConfigSpec extends Specification {
+/*
 
   "JSON codec" >> {
     val fullConfig =
@@ -122,4 +123,5 @@ object ConnectionConfigSpec extends Specification {
       c.validated.toEither.leftMap(_.toList) must beLeft(exactly(contain("allowRootAccess") and contain("disableSecurity")))
     }
   }
+*/
 }
